@@ -1,0 +1,15 @@
+start{
+int 12.3, 12s.3, 12.s3, a.7, 4..
+word 'sd'r''\v''\nry
+"fdfff
+? fgifd
+bdjfhglfd
+a =b ?
+#dfsg
+$a a$ a$c
+num point |a| =&b
+when:a and b
+{
+?dfsg
+fg
+}
