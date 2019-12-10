@@ -35,8 +35,8 @@ bool PARA_FUN_CFG();
 bool BODY_FUN_CFG();
 bool RETURN_FUN_CFG();
 bool RETURN_1_FUN_CFG();
-bool MUL_FUN_CFG();
-bool SIL_FUN_CFG();
+bool M_ST_FUN_CFG();
+bool S_ST_FUN_CFG();  // Bunch of code should be here in all S_ST_CFG
 
 // Constant CFG
 bool CONST_CFG();
@@ -62,6 +62,18 @@ bool DOT_DEC_EX_CFG();
 bool DOT_1_DEC_EX_CFG();
 bool DOT_2_DEC_EX_CFG();
 bool M_ASS_DEC_EX_CFG();
+
+//	Until Loop (While)
+bool UNTIL_LOOP_CFG();
+bool BODY_UNTIL_CFG();
+bool M_ST_UNTIL_CFG();
+bool S_ST_UNTIL_CFG();   // Bunch of code should be here in all S_ST_CFG
+
+//	Perform Until Loop (Do While)
+bool PERFORM_UNTIL_LOOP_CFG();
+bool M_ST_PERFORM_CFG();
+bool S_ST_PERFORM_CFG();   // Bunch of code should be here in all S_ST_CFG
+
 
 int main() {
 
@@ -238,7 +250,7 @@ bool PARA_FUN_CFG() {				///////// work here for para declating
 }
 
 bool BODY_FUN_CFG() {
-	if (MUL_FUN_CFG()) {
+	if (M_ST_FUN_CFG()) {
 		return true;
 	}
 	else if (OnGoing->CP == ":") { // decrement pointer
@@ -250,10 +262,10 @@ bool BODY_FUN_CFG() {
 	return false;
 }
 
-bool MUL_FUN_CFG() {
-	if (SIL_FUN_CFG()) {
+bool M_ST_FUN_CFG() {
+	if (S_ST_FUN_CFG()) {
 		OnGoing = OnGoing->next;
-		if (MUL_FUN_CFG()) {
+		if (M_ST_FUN_CFG()) {
 			return true;
 		}
 	}
@@ -266,8 +278,8 @@ bool MUL_FUN_CFG() {
 	return false;
 }
 
-bool SIL_FUN_CFG() {         ///////////////////////// for single statement
-	if (DECLARATION_CFG()) {
+bool S_ST_FUN_CFG() {         ///////////////////////// for single statement
+	if (DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() ) {
 		return true;
 	}
 	return false;
@@ -306,7 +318,7 @@ bool RETURN_1_FUN_CFG() {
 			return true;
 		}
 	}
-	else if (SIL_FUN_CFG()) {
+	else if (S_ST_FUN_CFG()) {
 		return true;
 	}
 	return false;
@@ -718,12 +730,133 @@ bool M_ASS_DEC_EX_CFG() {
 
 /* Declaration CFG END */
 
-/* Function CFG Start */
-/* Function CFG END */
+
+/* UNTL LOOP CFG Start */
+
+bool UNTIL_LOOP_CFG(){
+	if(OnGoing->CP == "until"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "("){
+			OnGoing = OnGoing->next;
+			if(DECLARATION_CFG()){  // exp code
+				OnGoing = OnGoing->next;
+				if(OnGoing->CP == ")"){
+					OnGoing = OnGoing->next;
+					if(OnGoing->CP == ":"){
+						OnGoing = OnGoing->next;
+						if(BODY_UNTIL_CFG()){
+							OnGoing = OnGoing->next;
+							if(OnGoing->CP == ":"){
+								OnGoing = OnGoing->next;
+								if(OnGoing->CP == ";"){
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool BODY_UNTIL_CFG(){
+	if(M_ST_UNTIL_CFG()){
+		return true;
+	}
+	else if(OnGoing->CP == ":" ){	// decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool M_ST_UNTIL_CFG(){
+	if(S_ST_UNTIL_CFG()){
+		OnGoing = OnGoing->next;
+		if(M_ST_UNTIL_CFG()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == ":" ){	// decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool S_ST_UNTIL_CFG(){
+	if(DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() ){ // All code here 
+		return true;
+	}
+	return false;
+}
+
+/* UNTIL LOOP CFG END */
 
 
-/* Function CFG Start */
-/* Function CFG END */
+/* PERFOM UNTIL LOOP CFG Start */
+
+bool PERFORM_UNTIL_LOOP_CFG(){
+	if(OnGoing->CP == "perform"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == ":"){
+			OnGoing = OnGoing->next;
+			if(M_ST_PERFORM_CFG()){
+				OnGoing = OnGoing->next;
+				if(OnGoing->CP == ":"){
+					OnGoing = OnGoing->next;
+					if(OnGoing->CP == "until"){
+						OnGoing = OnGoing->next;
+						if(OnGoing->CP == "("){
+							OnGoing = OnGoing->next;
+							if(DECLARATION_CFG()){ // exp code
+								OnGoing = OnGoing->next;
+								if(OnGoing->CP == ")"){
+									OnGoing = OnGoing->next;
+									if(OnGoing->CP == ";"){
+										return true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool M_ST_PERFORM_CFG(){
+	if(S_ST_PERFORM_CFG()){
+		OnGoing = OnGoing->next;
+		if(M_ST_PERFORM_CFG()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == ":" ){	// decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool S_ST_PERFORM_CFG(){
+	if(DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() ){ // All code here 
+		return true;
+	}
+	return false;
+}
+
+/* PERFOM UNTIL LOOP CFG END */
 
 
 /* Function CFG Start */
