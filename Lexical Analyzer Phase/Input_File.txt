@@ -7,7 +7,7 @@ word 'sd'r''\v''\nry
 bdjfhglfd
 a =b */
 //dfsg
-$a a$ a$c
+^a a^ a^c
 num point |a| =&b
 when:a and b
 {

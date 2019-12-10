@@ -84,13 +84,13 @@ int check_combine_operators(int side_1,int side_2)
 //****************************************************
 string get_class_of_operator(int index)   
 {
-	string operator_class[] = {"N/A","INC/DEC","ASSIGN-OP","COMT_END","COMT_START","RELAT-OP","Single_COMT"};
+	string operator_class[] = {"N/A","INCDEC","ASSIGN-OP","COMT_END","COMT_START","RELAT-OP","Single_COMT"};
 	return operator_class[index];
 }
 
 string get_class_of_single_operator(int index)   
 {
-	string operator_class[] = {"Add","Sub","Mul","Div","Mode","Asgn-Op","Not-Op","Adress-Op","Relat-Op","Relat-Op","invalid","Pointer"};
+	string operator_class[] = {"Add","Sub","Mul","Div","Mode","=","Not-Op","Adress-Op","Relat-Op","Relat-Op","invalid","Pointer"};
 	return operator_class[index];
 }
 
@@ -239,18 +239,18 @@ string check_keyword_id_constant(string word)
 		}
 		else if(check_keywords(word))
 		{	
-			return "keyword"; 
+			return word; 
 		}
 		else if(datatype_class(word)){
-			return "DataTypes";
+			return "DT";
 		}
 		else if(check_identifiers(word) == 1)
 		{
-			return "Identifier";
+			return "ID";
 		}
 		else if(check_constants(word) == 2)
 		{
-			return "Integer_Const";
+			return "Int_Const";
 		}
 		else if(check_constants(word) == 4)
 		{
@@ -317,7 +317,7 @@ int main() {
 				word = line.substr(i,4);
 				if(check_character_constant(word))
 				{
-					token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
+					token<<"( Char_Const , "<< word <<" , "<<line_num<<" )\n";
 				}
 				else
 				{
@@ -331,7 +331,7 @@ int main() {
 				word = line.substr(i,3);
 				if(check_character_constant(word))
 				{
-					token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
+					token<<"( Char_Const , "<< word <<" , "<<line_num<<" )\n";
 				}
 				else
 				{
@@ -465,7 +465,7 @@ int main() {
 				}
 				else if(check_identifiers(word) == 1)
 				{
-					token<<"( Identifier , "<< word <<" , "<<line_num<<" )\n";
+					token<<"( ID , "<< word <<" , "<<line_num<<" )\n";
 					word = "";
 					if(line[i+1] >='0' && line[i+1] <= '9')
 					{
@@ -484,7 +484,7 @@ int main() {
 					}
 					else 
 					{
-						token<<"( Integer_Const , "<< word <<" , "<<line_num<<" )\n";
+						token<<"( Int_Const , "<< word <<" , "<<line_num<<" )\n";
 						word = "";
 						token<<"( . , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
 					}

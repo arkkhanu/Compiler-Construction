@@ -74,7 +74,28 @@ bool PERFORM_UNTIL_LOOP_CFG();
 bool M_ST_PERFORM_CFG();
 bool S_ST_PERFORM_CFG();   // Bunch of code should be here in all S_ST_CFG
 
+// Expression CFG
+bool EXP_A_EXP();
+bool A_1_EXP();
+bool B_EXP();
+bool B_1_EXP();
+bool C_EXP();
+bool C_1_EXP();
+bool D_EXP();
+bool D_1_EXP();
+bool E_EXP();
+bool E_1_EXP();
+bool F_EXP();
+bool F_1_EXP();
+bool ARGS_EXP();
+bool DOT_EXP();
+bool DOT_1_EXP();
+bool DOT_2_EXP();
+bool M_ASS_EXP();
+bool M_ASS_1_EXP();
 
+
+ 
 int main() {
 
 	string line = "";
@@ -859,8 +880,389 @@ bool S_ST_PERFORM_CFG(){
 /* PERFOM UNTIL LOOP CFG END */
 
 
-/* Function CFG Start */
-/* Function CFG END */
+/* EXPRESSION CFG Start */
+
+bool EXP_A_EXP(){
+	if(B_EXP()){
+		OnGoing = OnGoing->next;
+		if(A_1_EXP()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool A_1_EXP(){
+	if(OnGoing->CP == "AND"){
+		OnGoing = OnGoing->next;
+		if(B_EXP()){
+			OnGoing = OnGoing->next;
+			if(A_1_EXP()){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "$" || OnGoing->CP == "AND" ){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool B_EXP(){
+	if(C_EXP()){
+		OnGoing = OnGoing->next;
+		if(B_1_EXP()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "AND" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool B_1_EXP(){
+	if(OnGoing->CP == "OR"){
+		OnGoing = OnGoing->next;
+		if(C_EXP()){
+			OnGoing = OnGoing->next;
+			if(B_1_EXP()){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "AND" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool C_EXP(){
+	if(D_EXP()){
+		OnGoing = OnGoing->next;
+		if(C_1_EXP()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "OR" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool C_1_EXP(){
+	if(OnGoing->CP == "RO"){ // RO should be relaced
+		OnGoing = OnGoing->next;
+		if(D_EXP()){
+			OnGoing = OnGoing->next;
+			if(C_1_EXP()){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "OR" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool D_EXP(){
+	if(E_EXP()){
+		OnGoing = OnGoing->next;
+		if(D_1_EXP()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "ID" || CONST_CFG() || OnGoing->CP == "INCDEC" || OnGoing->CP == "!" || OnGoing->CP == "^" || OnGoing->CP == "ADDSUB"
+			|| OnGoing->CP == "DIVMULL" || OnGoing->CP == "RO" || OnGoing->CP == "]" || OnGoing->CP == "," || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool D_1_EXP(){
+	if(OnGoing->CP == "ADDSUB"){
+		OnGoing = OnGoing->next;
+		if(E_EXP()){
+			OnGoing = OnGoing->next;
+			if(D_1_EXP()){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "ID" || CONST_CFG() || OnGoing->CP == "INCDEC" || OnGoing->CP == "!" || OnGoing->CP == "^" || OnGoing->CP == "ADDSUB"
+			|| OnGoing->CP == "DIVMULL" || OnGoing->CP == "RO" || OnGoing->CP == "]" || OnGoing->CP == "," || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool E_EXP(){
+	if(F_EXP()){
+		OnGoing = OnGoing->next;
+		if(E_1_EXP()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "ADDSUB" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool E_1_EXP(){
+	if(OnGoing->CP == "DIVMUL"){
+		OnGoing = OnGoing->next;
+		if(F_EXP()){
+			OnGoing = OnGoing->next;
+			if(E_1_EXP()){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "ADDSUB" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool F_EXP(){
+	if(OnGoing->CP == "ID"){
+		OnGoing = OnGoing->next;
+		if(F_1_EXP()){
+			return true;
+		}
+	}
+	else if(CONST_CFG()){
+		return true;
+	}
+	else if(OnGoing->CP == "INCDEC"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "ID"){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "!"){
+		OnGoing = OnGoing->next;
+		if (F_EXP()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "^"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "ID"){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "DIVMUL" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool F_1_EXP(){
+	if(OnGoing->CP == "INCDEC"){
+		return true;
+	}
+	else if(OnGoing->CP == "("){
+		OnGoing = OnGoing->next;
+		if(ARGS_EXP()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == ")"){
+				return true;
+			}
+		}
+	}
+	else if (OnGoing->CP == "["){
+		OnGoing = OnGoing->next;
+		if(D_EXP()){
+			OnGoing = OnGoing->next;
+			if(M_ASS_EXP()){
+				return true;
+			}
+		}
+	}
+	else if(DOT_EXP()){
+		return true;
+	}
+	else if(OnGoing->CP == "["){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "Int_Const"){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "]"){
+				OnGoing = OnGoing->next;
+				if(DOT_EXP()){
+					return true;
+				}
+			}
+		}
+	}
+	else if(OnGoing->CP == "DIVMUL" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool ARGS_EXP(){
+	if(D_EXP()){
+		OnGoing = OnGoing->next;
+		if(ARGS_EXP()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == ","){
+		OnGoing = OnGoing->next;
+		if(D_EXP()){
+			OnGoing = OnGoing->next;
+			if(ARGS_EXP()){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == ")"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool DOT_EXP(){
+	if(OnGoing->CP == "."){
+		OnGoing = OnGoing->next;
+		if(DOT_1_EXP()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "DIVMUL" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool DOT_1_EXP(){
+	if(OnGoing->CP == "ID"){
+		OnGoing = OnGoing->next;
+		if(DOT_2_EXP()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "DIVMUL" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool DOT_2_EXP(){
+	if(OnGoing->CP == "["){
+		OnGoing = OnGoing->next;
+		if(D_EXP()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "]"){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "("){
+		OnGoing = OnGoing->next;
+		if(ARGS_EXP()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == ")"){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "DIVMUL" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool M_ASS_EXP(){
+	if(OnGoing->CP == "]"){
+		OnGoing = OnGoing->next;
+		if(M_ASS_1_EXP()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "DIVMUL" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool M_ASS_1_EXP(){
+	if(OnGoing->CP == "["){
+		OnGoing = OnGoing->next;
+		if(D_EXP()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "]"){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "DIVMUL" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+/* EXPRESSION CFG END */
 
 
 /* Function CFG Start */
