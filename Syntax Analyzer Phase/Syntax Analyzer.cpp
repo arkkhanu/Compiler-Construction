@@ -24,22 +24,32 @@ void insert(string word);
 // Main
 bool MAIN_CFG();
 
+// Constant CFG
+bool CONST_CFG();
+
 // Declaration
 bool DECL_CFG();
 bool INIT_DECL_();
 bool LISIT_DECL_();
 
 // Function //
-bool Function_CFG();
+bool FUNCTION_CFG();
 bool PARA_FUN_CFG();
 bool BODY_FUN_CFG();
 bool RETURN_FUN_CFG();
 bool RETURN_1_FUN_CFG();
 bool M_ST_FUN_CFG();
-bool S_ST_FUN_CFG();  // Bunch of code should be here in all S_ST_CFG
+// Global Single Statement CFG()
+bool S_ST_GLOBAL_CFG();  // Bunch of code should be here in all S_ST_CFG
 
-// Constant CFG
-bool CONST_CFG();
+// Before Calling Main
+bool BEFORE_CALLING_MAIN(); 
+
+// Function Calling //
+bool FUNTION_CALL_CFG();
+bool ARGS_FUN_CALL_CFG();
+bool ARRAY_FUN_CALL_CFG();
+bool MULTIARRAY_FUN_CALL_CFG();
 
 // Declarartion //
 bool DECLARATION_CFG();
@@ -63,16 +73,23 @@ bool DOT_1_DEC_EX_CFG();
 bool DOT_2_DEC_EX_CFG();
 bool M_ASS_DEC_EX_CFG();
 
+// When (Swtich)
+bool WHEN_CFG();
+bool BODY_WHEN_CFG();
+bool M_CASE_WHEN_CFG();
+bool S_CASE_WHEN_CFG();
+bool M_ST_WHEN_CFG();
+bool BREAK_WHEN_CFG();
+bool DEFAULT_WHEN_CFG();
+
+
 //	Until Loop (While)
 bool UNTIL_LOOP_CFG();
 bool BODY_UNTIL_CFG();
-bool M_ST_UNTIL_CFG();
-bool S_ST_UNTIL_CFG();   // Bunch of code should be here in all S_ST_CFG
-
+bool M_ST_UNTIL_CFG(); 
 //	Perform Until Loop (Do While)
 bool PERFORM_UNTIL_LOOP_CFG();
-bool M_ST_PERFORM_CFG();
-bool S_ST_PERFORM_CFG();   // Bunch of code should be here in all S_ST_CFG
+bool M_ST_PERFORM_CFG();  // Bunch of code should be here in all S_ST_CFG
 
 // Expression CFG
 bool EXP_A_EXP();
@@ -94,6 +111,22 @@ bool DOT_2_EXP();
 bool M_ASS_EXP();
 bool M_ASS_1_EXP();
 
+// IF BUT (IF || Else)
+bool IF_BUT_CFG();
+bool BODY_IF_CFG();
+bool O_BUT_IF_CFG();
+bool BUT_IF_CFG();
+bool M_ST_IF_CFG();
+
+//	Structrue
+bool STRUCTURE_CFG();
+bool BODY_STRUC_CFG();
+bool M_ST_STRUC_CFG();
+bool S_ST_STRUC_CFG();
+bool S_ST_1_STRUC_CFG();
+bool X_1_S_ST_1_STRUC_CFG();
+bool OBJ_STRUC_CFG();
+bool INIT_STRUC_CFG();
 
  
 int main() {
@@ -191,10 +224,24 @@ void Display() {
 	}
 }
 
+bool BEFORE_CALLING_MAIN(){
+	if(STRUCTURE_CFG() || FUNTION_CALL_CFG() || DECLARATION_CFG()){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
 
 bool MAIN_CFG() {
 	if (!isEmpty()) {
 		OnGoing = head;
+//		Function and declaration here 
+		label_1:
+		if(BEFORE_CALLING_MAIN() && OnGoing->CP != "void"){
+			OnGoing = OnGoing->next;
+			goto label_1;
+		}
 		if (OnGoing->CP == "void") {
 			OnGoing = OnGoing->next;
 			if (OnGoing->CP == "main") {
@@ -203,13 +250,25 @@ bool MAIN_CFG() {
 					OnGoing = OnGoing->next;
 					if (OnGoing->CP == ")") {
 						OnGoing = OnGoing->next;
-						if (OnGoing->CP == "{") {
+						if (OnGoing->CP == "{") {	
 							OnGoing = OnGoing->next;
-							if (Function_CFG()) /* Here Code Start */
-							{
+							bool found = false;
+							label_2:
+							if (/*DECLARATION_CFG() || PERFORM_UNTIL_LOOP_CFG() || UNTIL_LOOP_CFG() || FUNTION_CALL_CFG()*/
+							FUNTION_CALL_CFG() || S_ST_GLOBAL_CFG()
+							) /* coding Here Code Start */
+							{	// yaha pe function calling ai ge
+								
+//								cout<<"\nas1 "<<OnGoing->CP;
 								OnGoing = OnGoing->next;
-								if (OnGoing->CP == "}") {
+//								cout<<"\nas2 "<<OnGoing->CP;
+								if (OnGoing->CP == "}" ) {
+//									found = true;
 									return true;
+								}
+								else{
+									
+									goto label_2;
 								}
 							}
 						}
@@ -217,16 +276,16 @@ bool MAIN_CFG() {
 				}
 			}
 		}
-		else {
-			return false;
-		}
+//		else {
+//			return false;
+//		}
 	}
 	return false;
 }
 
 /* Function CFG Start */
 
-bool Function_CFG() {
+bool FUNCTION_CFG() {
 	if (OnGoing->CP == "fun") {
 		OnGoing = OnGoing->next;
 		if (OnGoing->CP == "ID") {
@@ -284,7 +343,7 @@ bool BODY_FUN_CFG() {
 }
 
 bool M_ST_FUN_CFG() {
-	if (S_ST_FUN_CFG()) {
+	if (S_ST_GLOBAL_CFG()) {
 		OnGoing = OnGoing->next;
 		if (M_ST_FUN_CFG()) {
 			return true;
@@ -299,8 +358,8 @@ bool M_ST_FUN_CFG() {
 	return false;
 }
 
-bool S_ST_FUN_CFG() {         ///////////////////////// for single statement
-	if (DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() ) {
+bool S_ST_GLOBAL_CFG() {         ///////////////////////// for single statement
+	if (DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() || WHEN_CFG()  || IF_BUT_CFG()) {
 		return true;
 	}
 	return false;
@@ -339,7 +398,7 @@ bool RETURN_1_FUN_CFG() {
 			return true;
 		}
 	}
-	else if (S_ST_FUN_CFG()) {
+	else if (EXP_A_EXP()) {
 		return true;
 	}
 	return false;
@@ -640,9 +699,9 @@ bool C_1_DEC_EX_CFG() {
 		return true;
 	}
 	else if (OnGoing->CP == "ADDSUB" || OnGoing->CP == "$") {  // decrement in pointer here
-		Lex_An* temp1 = OnGoing;
-		OnGoing = temp1->prev;
-		OnGoing->next = temp1;
+//		Lex_An* temp1 = OnGoing;
+//		OnGoing = temp1->prev;
+//		OnGoing->next = temp1;
 		return true;
 	}
 	return false;
@@ -759,7 +818,7 @@ bool UNTIL_LOOP_CFG(){
 		OnGoing = OnGoing->next;
 		if(OnGoing->CP == "("){
 			OnGoing = OnGoing->next;
-			if(DECLARATION_CFG()){  // exp code
+			if(EXP_A_EXP()){  // exp code
 				OnGoing = OnGoing->next;
 				if(OnGoing->CP == ")"){
 					OnGoing = OnGoing->next;
@@ -768,10 +827,10 @@ bool UNTIL_LOOP_CFG(){
 						if(BODY_UNTIL_CFG()){
 							OnGoing = OnGoing->next;
 							if(OnGoing->CP == ":"){
-								OnGoing = OnGoing->next;
-								if(OnGoing->CP == ";"){
+//								OnGoing = OnGoing->next;
+//								if(OnGoing->CP == ";"){
 									return true;
-								}
+//								}
 							}
 						}
 					}
@@ -796,7 +855,7 @@ bool BODY_UNTIL_CFG(){
 }
 
 bool M_ST_UNTIL_CFG(){
-	if(S_ST_UNTIL_CFG()){
+	if(S_ST_GLOBAL_CFG()){
 		OnGoing = OnGoing->next;
 		if(M_ST_UNTIL_CFG()){
 			return true;
@@ -811,12 +870,6 @@ bool M_ST_UNTIL_CFG(){
 	return false;
 }
 
-bool S_ST_UNTIL_CFG(){
-	if(DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() ){ // All code here 
-		return true;
-	}
-	return false;
-}
 
 /* UNTIL LOOP CFG END */
 
@@ -836,7 +889,7 @@ bool PERFORM_UNTIL_LOOP_CFG(){
 						OnGoing = OnGoing->next;
 						if(OnGoing->CP == "("){
 							OnGoing = OnGoing->next;
-							if(DECLARATION_CFG()){ // exp code
+							if(EXP_A_EXP()){ // exp code
 								OnGoing = OnGoing->next;
 								if(OnGoing->CP == ")"){
 									OnGoing = OnGoing->next;
@@ -855,7 +908,7 @@ bool PERFORM_UNTIL_LOOP_CFG(){
 }
 
 bool M_ST_PERFORM_CFG(){
-	if(S_ST_PERFORM_CFG()){
+	if(S_ST_GLOBAL_CFG()){
 		OnGoing = OnGoing->next;
 		if(M_ST_PERFORM_CFG()){
 			return true;
@@ -870,12 +923,6 @@ bool M_ST_PERFORM_CFG(){
 	return false;
 }
 
-bool S_ST_PERFORM_CFG(){
-	if(DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() ){ // All code here 
-		return true;
-	}
-	return false;
-}
 
 /* PERFOM UNTIL LOOP CFG END */
 
@@ -888,8 +935,14 @@ bool EXP_A_EXP(){
 		if(A_1_EXP()){
 			return true;
 		}
+//		else if(OnGoing->CP == "$" || OnGoing->CP == ")"){ // decrement pointer
+//			Lex_An* temp1 = OnGoing;
+//			OnGoing = temp1->prev;
+//			OnGoing->next = temp1;
+//			return true;
+//		}
 	}
-	else if(OnGoing->CP == "$"){ // decrement pointer
+	else if(OnGoing->CP == "$" || OnGoing->CP == ")"){ // decrement pointer
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
@@ -908,7 +961,7 @@ bool A_1_EXP(){
 			}
 		}
 	}
-	else if(OnGoing->CP == "$" || OnGoing->CP == "AND" ){ // decrement pointer
+	else if(OnGoing->CP == "$" || OnGoing->CP == ")" ){ // decrement pointer
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
@@ -942,6 +995,7 @@ bool B_1_EXP(){
 				return true;
 			}
 		}
+		
 	}
 	else if(OnGoing->CP == "AND" || OnGoing->CP == "$"){ // decrement pointer
 		Lex_An* temp1 = OnGoing;
@@ -977,6 +1031,12 @@ bool C_1_EXP(){
 				return true;
 			}
 		}
+//		else if(OnGoing->CP == "OR" || OnGoing->CP == "$"){ // decrement pointer
+//			Lex_An* temp1 = OnGoing;
+//			OnGoing = temp1->prev;
+//			OnGoing->next = temp1;
+//			return true;
+//		}
 	}
 	else if(OnGoing->CP == "OR" || OnGoing->CP == "$"){ // decrement pointer
 		Lex_An* temp1 = OnGoing;
@@ -1265,19 +1325,503 @@ bool M_ASS_1_EXP(){
 /* EXPRESSION CFG END */
 
 
-/* Function CFG Start */
-/* Function CFG END */
+/* Function CAlling CFG Start */
+
+bool FUNTION_CALL_CFG(){
+	if(OnGoing->CP == "ID"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "(" ){
+			OnGoing = OnGoing->next;
+			if(ARGS_FUN_CALL_CFG()){
+				OnGoing = OnGoing->next;
+				if(OnGoing->CP == ")" ){
+					OnGoing = OnGoing->next;
+					if(OnGoing->CP == ";"){
+						return true;
+					}
+				}
+			}
+		}
+	}
+	else if(OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool ARGS_FUN_CALL_CFG(){
+	if(ARRAY_FUN_CALL_CFG()){
+		return true;
+	}
+	else if (MULTIARRAY_FUN_CALL_CFG()){
+		return true;
+	}
+	else if(OnGoing->CP == ")"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool ARRAY_FUN_CALL_CFG(){
+	if(OnGoing->CP == "["){
+		OnGoing = OnGoing->next;
+		if(EXP_A_EXP()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "]"){
+				OnGoing = OnGoing->next;
+				if(ARRAY_FUN_CALL_CFG()){
+					return true;
+				}
+			}
+		}
+	}
+	else if(OnGoing->CP == ")" ){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool MULTIARRAY_FUN_CALL_CFG(){
+	if(OnGoing->CP == "["){
+		OnGoing = OnGoing->next;
+		if(EXP_A_EXP()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "]"){
+				OnGoing = OnGoing->next;
+				if(MULTIARRAY_FUN_CALL_CFG()){
+					return true;
+				}
+			}
+		}
+	}
+	else if(OnGoing->CP == ")"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+/* Function Calling CFG END */
+
+
+/* WHEN CFG Start */
+
+bool WHEN_CFG(){
+	if(OnGoing->CP == "when"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "("){
+			OnGoing = OnGoing->next;
+			if(EXP_A_EXP()){
+				OnGoing = OnGoing->next;
+				if(OnGoing->CP == ")"){
+					OnGoing = OnGoing->next;
+					if(BODY_WHEN_CFG()){
+						return true;
+					}
+				}
+			}
+		}
+	}
+	else if(OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool BODY_WHEN_CFG(){
+	if(S_CASE_WHEN_CFG()){
+		OnGoing = OnGoing->next;
+		return true;
+	}
+	else if(OnGoing->CP == ":"){
+		OnGoing = OnGoing->next;
+		if(M_CASE_WHEN_CFG()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == ":"){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == ";"){
+		return true;
+	}
+	else if(OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool M_CASE_WHEN_CFG(){
+	if (DEFAULT_WHEN_CFG()){
+		return true;
+	}
+	else if(S_CASE_WHEN_CFG()){
+		OnGoing = OnGoing->next;
+		if(M_CASE_WHEN_CFG()){
+			return true;
+		}
+	}
+	else if (DEFAULT_WHEN_CFG()){
+		return true;
+	}
+	else if(OnGoing->CP == ":"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool S_CASE_WHEN_CFG(){
+	if(OnGoing->CP == "case"){
+		OnGoing = OnGoing->next;
+		if(CONST_CFG()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == ":"){
+				OnGoing = OnGoing->next;
+				if(M_ST_WHEN_CFG()){
+					OnGoing = OnGoing->next;
+					if(BREAK_WHEN_CFG()){
+						return true;
+					}
+				}
+			}
+		}
+	}
+	else if(OnGoing->CP == "case" || OnGoing->CP == "default" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool M_ST_WHEN_CFG(){
+	if(S_ST_GLOBAL_CFG()){
+		OnGoing = OnGoing->next;
+		if(M_ST_WHEN_CFG()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "break" || OnGoing->CP == ":"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+
+bool BREAK_WHEN_CFG(){
+	if(OnGoing->CP == "break"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == ";"){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "case" || OnGoing->CP == "default" || OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool DEFAULT_WHEN_CFG(){
+	if(OnGoing->CP == "default"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == ":"){
+			OnGoing = OnGoing->next;
+			if(M_ST_WHEN_CFG()){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == ":"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+/* WHEN CFG END */
+
+
+/* IF BUT CFG Start */
+
+bool IF_BUT_CFG(){
+	if(OnGoing->CP == "if"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "("){
+			OnGoing = OnGoing->next;
+			if(EXP_A_EXP()){
+				OnGoing = OnGoing->next;
+				if(OnGoing->CP == ")"){
+					OnGoing = OnGoing->next;
+					if(BODY_IF_CFG()){
+						OnGoing = OnGoing->next;
+						if(O_BUT_IF_CFG()){
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	else if(OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool BODY_IF_CFG(){
+	if(OnGoing->CP == ":"){
+		OnGoing = OnGoing->next;
+		if(M_ST_IF_CFG()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == ":"){
+				return true;
+			}
+		}
+	}
+	else if(S_ST_GLOBAL_CFG()){
+		return true;
+	}
+	else if(OnGoing->CP == ";"){
+		return true;
+	}
+	return false;
+}
+
+bool O_BUT_IF_CFG(){
+	if(OnGoing->CP == "but"){
+		OnGoing = OnGoing->next;
+		if(BUT_IF_CFG()){
+			OnGoing = OnGoing->next;
+			if(BODY_IF_CFG()){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "$" || OnGoing->CP == ":" || OnGoing->CP == "}"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool BUT_IF_CFG(){
+	if(OnGoing->CP == "if"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "("){
+			OnGoing = OnGoing->next;
+			if(EXP_A_EXP()){
+				OnGoing = OnGoing->next;
+				if(OnGoing->CP == ")"){
+					return true;
+				}
+			}
+		}
+	}
+	else if(OnGoing->CP == ":" || OnGoing->CP == ";" ){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool M_ST_IF_CFG(){
+	if(S_ST_GLOBAL_CFG()){
+		OnGoing = OnGoing->next;
+		if(M_ST_IF_CFG()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == ":" ){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+/* IF BUT CFG END */
+
+
+
+/* Structure CFG Start */
+
+bool STRUCTURE_CFG(){
+	if(OnGoing->CP == "struct"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "ID"){
+			OnGoing = OnGoing->next;
+			if(BODY_STRUC_CFG()){
+				OnGoing = OnGoing->next;
+				if(OBJ_STRUC_CFG()){
+					return true;
+				}
+			}
+		}
+	}
+	else if(OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool BODY_STRUC_CFG(){
+	if(OnGoing->CP == "{"){
+		OnGoing = OnGoing->next;
+		if(M_ST_STRUC_CFG()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "}"){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "ID" || OnGoing->CP == ";"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool M_ST_STRUC_CFG(){
+	if(S_ST_STRUC_CFG()){
+		OnGoing = OnGoing->next;
+		if(M_ST_STRUC_CFG()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "}"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool S_ST_STRUC_CFG(){
+	if(DECLARATION_CFG()){
+		return true;
+	}
+	else if(OnGoing->CP == "ID"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "^"){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "ID"){
+				OnGoing = OnGoing->next;
+				if(S_ST_1_STRUC_CFG()){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool S_ST_1_STRUC_CFG(){
+	if(OnGoing->CP == ";"){
+		return true;
+	}
+	else if(OnGoing->CP == "["){
+		OnGoing = OnGoing->next;
+		if(X_1_S_ST_1_STRUC_CFG()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "]"){
+				OnGoing = OnGoing->next;
+				if(OnGoing->CP == ";"){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool X_1_S_ST_1_STRUC_CFG(){
+	if(OnGoing->CP == "ID"){
+		return true;
+	}
+	else if(OnGoing->CP == "Int_Const"){
+		return true;
+	}
+	return false;
+}
+
+bool OBJ_STRUC_CFG(){
+	if(OnGoing->CP == "ID"){
+		OnGoing = OnGoing->next;
+		if(INIT_STRUC_CFG()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == ";"){
+		return true;
+	}
+}
+
+bool INIT_STRUC_CFG(){
+	if(OnGoing->CP == ","){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "ID"){
+			OnGoing = OnGoing->next;
+			if(INIT_STRUC_CFG()){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == ";"){
+		return true;
+	}
+	return false;
+}
+
+/* Structure CFG END */
 
 
 /* Function CFG Start */
+
 /* Function CFG END */
-
-
 /* Function CFG Start */
+
 /* Function CFG END */
-
-
-/* Function CFG Start */
-/* Function CFG END */
-
 

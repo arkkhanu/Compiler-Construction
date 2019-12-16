@@ -20,8 +20,8 @@ bool check_AND_OR_NOT(string word){
 }
 
 bool check_keywords(string word) {
-	string keywords[] = { "stop","val","jump","already","serialize","goto","list","perform","until","from","when","condition","if","but","getsize","setonce","structure","unit"};
-	for (int i = 0; i<18; i++)
+	string keywords[] = { "main","fun","void","jump","already","serialize","goto","list","perform","until","from","when","condition","if","but","getsize","setonce","struct","unit","range"};
+	for (int i = 0; i<20; i++)
 	{
 		if (word == keywords[i])
 		{
@@ -84,13 +84,13 @@ int check_combine_operators(int side_1,int side_2)
 //****************************************************
 string get_class_of_operator(int index)   
 {
-	string operator_class[] = {"N/A","INCDEC","ASSIGN-OP","COMT_END","COMT_START","RELAT-OP","Single_COMT"};
+	string operator_class[] = {"N/A","INCDEC","ASSIGN-OP","COMT_END","COMT_START","RO","Single_COMT"};
 	return operator_class[index];
 }
 
 string get_class_of_single_operator(int index)   
 {
-	string operator_class[] = {"Add","Sub","Mul","Div","Mode","=","Not-Op","Adress-Op","Relat-Op","Relat-Op","invalid","Pointer"};
+	string operator_class[] = {"+","-","*","/","%","=","!","&","RO","RO","invalid","^"};
 	return operator_class[index];
 }
 
