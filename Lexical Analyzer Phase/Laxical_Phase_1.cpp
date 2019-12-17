@@ -20,8 +20,8 @@ bool check_AND_OR_NOT(string word){
 }
 
 bool check_keywords(string word) {
-	string keywords[] = { "main","fun","void","jump","already","serialize","goto","list","perform","until","from","when","condition","if","but","getsize","setonce","struct","unit","range"};
-	for (int i = 0; i<20; i++)
+	string keywords[] = { "main","in","return","fun","void","jump","already","serialize","goto","list","perform","until","from","when","condition","if","but","getsize","setonce","struct","unit","range"};
+	for (int i = 0; i<22; i++)
 	{
 		if (word == keywords[i])
 		{
@@ -90,7 +90,7 @@ string get_class_of_operator(int index)
 
 string get_class_of_single_operator(int index)   
 {
-	string operator_class[] = {"+","-","*","/","%","=","!","&","RO","RO","invalid","^"};
+	string operator_class[] = {"ADDSUB","ADDSUB","DIVMUL","DIVMUL","%","=","!","&","RO","RO","invalid","^"};
 	return operator_class[index];
 }
 
